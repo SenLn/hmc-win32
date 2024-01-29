@@ -49,6 +49,14 @@ static napi_value Init(napi_env env, napi_value exports)
         DECLARE_NAPI_METHODRM("moveFile", moveFile),
         DECLARE_NAPI_METHODRM("getThumbnailPng", getThumbnailPng),
         DECLARE_NAPI_METHODRM("getLinkTarget", getLinkTarget),
+        DECLARE_NAPI_METHODRM("setFolderIcon", setFolderIcon),
+        DECLARE_NAPI_METHODRM("isLinkLink", isLinkLink),
+        DECLARE_NAPI_METHODRM("setShortcutLink", setShortcutLink),
+        DECLARE_NAPI_METHODRM("createFsLink", createFsLink),
+        DECLARE_NAPI_METHODRM("getSystemMetrics", getSystemMetrics),
+        DECLARE_NAPI_METHODRM("getShortcutLink", getShortcutLink),
+        DECLARE_NAPI_METHODRM("showContextMenu", showContextMenu),
+        DECLARE_NAPI_METHODRM("setConversionStatus", setConversionStatus),
         
     };
     

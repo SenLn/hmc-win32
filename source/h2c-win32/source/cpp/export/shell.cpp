@@ -98,19 +98,31 @@ napi_value getThumbnailPng(napi_env env, napi_callback_info info)
 {
     napi_value result = as_Null();
     auto input = hmc_NodeArgsValue(env, info);
-    input.eq({{0, js_string},
-              {1, js_number}},
-             true);
-    bool trash_ok = false;
 
-    std::wstring source = at_StringWOr(0, L"");
-    int isShow = at_Number32Or(1, 256);
-
-    std::vector<std::uint8_t> buff = hmc_shell_util::getThumbnailPng(source, isShow);
-
-    if (!buff.empty())
+    if (input.eq({js_string, js_number}, false))
     {
-        return as_Buffer(buff);
+
+        std::wstring source = at_StringWOr(0, L"");
+        int img_size = at_Number32Or(1, 256);
+
+        std::vector<std::uint8_t> buff = hmc_shell_util::GetThumbnail::GetBuff(source, img_size);
+
+        if (!buff.empty())
+        {
+            return as_Buffer(buff);
+        }
+    }
+
+    if (input.eq({js_string, js_string, js_number}, false))
+    {
+
+        std::wstring source = at_StringWOr(0, L"");
+        std::wstring output = at_StringWOr(1, L"");
+        int img_size = at_Number32Or(2, 256);
+
+        bool is_ok = hmc_shell_util::GetThumbnail::toFile(source, output, img_size);
+
+        return as_Boolean(is_ok);
     }
 
     return result;
