@@ -15,7 +15,12 @@
 napi_value fn_getVariableAll(napi_env env, napi_callback_info info)
 {
     // wstring variableListJson = hmc_string_util::map_to_jsonW(getVariableAllW());
-    return hmc_napi_create_value::Object::Object(env, getVariableAllW());
+    auto map = hmc_napi_create_value::jsObject(env);
+    auto list = getVariableAllW();
+    for (auto&& it : list) {
+        map.putString(it.first,it.second);
+    }
+    return map.toValue();
 }
 
 // 设置当前进程的工作路径
@@ -83,8 +88,14 @@ napi_value fn_getRealGlobalVariable(napi_env env, napi_callback_info info)
     result.insert(std::make_pair(L"Path", path_value));
 
     // return hmc_napi_create_value::String(env, hmc_string_util::map_to_jsonW(result) );
+    
+    auto map = hmc_napi_create_value::jsObject(env);
+    auto list = result;
+    for (auto&& it : list) {
+        map.putString(it.first, it.second);
+    }
+    return map.toValue();
 
-    return hmc_napi_create_value::Object::Object(env, result);
 }
 
 // user 变量的 key 列表
@@ -93,9 +104,16 @@ napi_value fn_getUserKeyList(napi_env env, napi_callback_info info)
     wstring result = L"";
     std::vector<std::wstring> keyList2W = hmc_string_util::ansi_to_utf16(hmc_env::systemEnv::keyUseList());
 
+    auto json = hmc_napi_create_value::jsArray(env);
+
+    for (size_t i = 0; i < keyList2W.size(); i++)
+    {
+        auto it = keyList2W[i];
+        json.putString(it);
+    }
     // wstring keyList2json = hmc_string_util::vec_to_array_json(keyList2W);
 
-    return hmc_napi_create_value::Array::String(env, keyList2W);
+    return json.toValue();
 }
 
 // systm 变量的 key 列表
@@ -103,7 +121,16 @@ napi_value fn_getSystemKeyList(napi_env env, napi_callback_info info)
 {
     std::vector<std::wstring> keyList2W = hmc_string_util::ansi_to_utf16(hmc_env::systemEnv::keySysList());
     wstring keyList2json = hmc_string_util::vec_to_array_json(keyList2W);
-    return hmc_napi_create_value::Array::String(env, keyList2W);
+
+    auto json = hmc_napi_create_value::jsArray(env);
+
+    for (size_t i = 0; i < keyList2W.size(); i++)
+    {
+        auto it = keyList2W[i];
+        json.putString(it);
+    }
+
+    return json.toValue();
 }
 
 /**
@@ -504,5 +531,10 @@ napi_value fn_getenv(napi_env env, napi_callback_info info)
 
 napi_value fn_getAllEnv(napi_env env, napi_callback_info info)
 {
-    return hmc_napi_create_value::Object::Object(env, hmc_env::getEnvListW());
+    auto map = hmc_napi_create_value::jsObject(env);
+    auto list = hmc_env::getEnvListW();
+    for (auto&& it : list) {
+        map.putString(it.first, it.second);
+    }
+    return map.toValue();
 }

@@ -1665,6 +1665,7 @@ static napi_value openApp(napi_env env, napi_callback_info info)
 
 static napi_value enumChildWindows(napi_env env, napi_callback_info info)
 {
+    auto res = hmc_napi_create_value::jsArray(env);
     auto input = hmc_NodeArgsValue(env, info);
     input.eq(0, js_number,true);
 
@@ -1681,14 +1682,14 @@ static napi_value enumChildWindows(napi_env env, napi_callback_info info)
         for (size_t i = 0; i < count; i++)
         {
             auto it = subHandleResuleList.at(i);
-            subHandleResuleList.push_back(it);
+            res.putNumber(static_cast<int64_t>((int64_t)it));
         }
         
-       return hmc_napi_create_value::Array::Number(env, sub_num_list);
+        return res.toValue();
 
     }
 
-    return as_ArrayNul();
+    return res.toValue();
 }
 
 // 获取屏幕个数
@@ -2483,14 +2484,14 @@ napi_value fn_findAllWindow(napi_env env, napi_callback_info info)
     napi_status status;
     size_t argc = 4;
     napi_value args[4];
-    napi_value Results = hmc_napi_create_value::Array::Number(env, vector<int>());
+    auto Results = hmc_napi_create_value::jsArray(env);
 
     status = $napi_get_cb_info(argc, args);
     assert(status == napi_ok);
 
     if (argc != 4)
     {
-        return Results;
+        return Results.toValue();
     }
 
     bool flag_isWindow = (hmc_napi_type::isBoolean(env, args[2]) ? hmc_napi_get_value::boolean_bool(env, args[2]) : true);
@@ -2560,9 +2561,9 @@ napi_value fn_findAllWindow(napi_env env, napi_callback_info info)
     {
         int hwnd = hwnd_list[index];
         napi_value number = hmc_napi_create_value::Number(env, hwnd);
-        napi_set_element(env, Results, index, number);
+        Results.putValue(number);
     }
-    return Results;
+    return Results.toValue();
 }
 
 napi_value __Popen(napi_env env, napi_callback_info info)

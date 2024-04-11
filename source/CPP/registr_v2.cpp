@@ -395,7 +395,7 @@ napi_value setRegistrValue(napi_env env, napi_callback_info info)
 napi_value getRegistrValue(napi_env env, napi_callback_info info)
 {
 
-    napi_value result = hmc_napi_create_value::Object::Object(env);
+    napi_value result = hmc_napi_create_value::Null(env);
 
     auto nodeArgsValueList = hmc_NodeArgsValue(env, info);
 
@@ -434,8 +434,11 @@ napi_value getRegistrValue(napi_env env, napi_callback_info info)
     auto type = ValueStat.getType();
     wstring typeName = hmc_registr_util::type_nameW(type);
 
-    hmc_napi_create_value::Object::putValue(env, result, L"type", as_Number(type));
-    hmc_napi_create_value::Object::putValue(env, result, L"typeName", as_String(typeName));
+    auto object = hmc_napi_create_value::jsObject(env);
+
+    object.putValue("type", as_Number(type));
+    object.putValue("typeName", as_String(typeName));
+
     bool is_push_ok = false;
 
     if (!is_push_ok && ValueStat.isString())
@@ -444,16 +447,23 @@ napi_value getRegistrValue(napi_env env, napi_callback_info info)
 
         if( ValueStat.isType(REG_EXPAND_SZ) ) {
             auto data2 = ValueStat.getStringW(true);
-            hmc_napi_create_value::Object::putValue(env, result, L"dataExpand", as_String(data2));
+            object.putValue("dataExpand", as_String(data2));
         }
         
         else if( ValueStat.isType(REG_MULTI_SZ) ) {
             auto data2 = ValueStat.getMultiW();
-            hmc_napi_create_value::Object::putValue(env, result, L"data", hmc_napi_create_value::Array::String(env, data2));
+            auto array = hmc_napi_create_value::jsArray(env);
+
+            for (size_t i = 0; i < data2.size(); i++)
+            {
+                array.putString(data2[i]);
+            }
+
+            object.putValue("data", array.toValue());
         }
 
         else{
-            hmc_napi_create_value::Object::putValue(env, result, L"data", as_String(data));
+            object.putValue("data", as_String(data));
         }
         
         is_push_ok = true;
@@ -464,12 +474,12 @@ napi_value getRegistrValue(napi_env env, napi_callback_info info)
         auto data = ValueStat.getInt64();
         if (ValueStat.isInt64())
         {
-            hmc_napi_create_value::Object::putValue(env, result, L"data", as_Bigint(data));
+            object.putValue("data", as_Bigint(data));
         }
         else
         {
 
-            hmc_napi_create_value::Object::putValue(env, result, L"data", as_Number(data));
+            object.putValue("data", as_Number(data));
         }
         is_push_ok = true;
     }
@@ -477,9 +487,9 @@ napi_value getRegistrValue(napi_env env, napi_callback_info info)
     {
         vector<unsigned char> buff = ValueStat.getBuff();
         napi_value buffer = hmc_napi_create_value::Buffer(env, buff);
-        hmc_napi_create_value::Object::putValue(env, result, L"data", buffer);
+        object.putValue("data", buffer);
         is_push_ok = true;
     }
 
-    return result;
+    return object.toValue();
 }

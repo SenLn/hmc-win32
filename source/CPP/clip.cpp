@@ -911,15 +911,14 @@ napi_value setClipboardFilePaths(napi_env env, napi_callback_info info)
 napi_value getClipboardInfo(napi_env env, napi_callback_info info)
 {
     auto data = clip_util::GetClipboardInfo();
-    napi_value Results;
-    napi_create_object(env, &Results);
+    auto Results = hmc_napi_create_value::jsObject(env);
 
-    hmc_napi_create_value::Object::putValue(env, Results, "format", hmc_string_util::vec_to_array_json(data.format));
-    hmc_napi_create_value::Object::putValue(env, Results, "formatCount", as_Number(data.formatCount));
-    hmc_napi_create_value::Object::putValue(env, Results, "hwnd", as_Number(data.hwnd));
-    hmc_napi_create_value::Object::putValue(env, Results, "id", as_Number(data.id));
+    Results.putString("format", hmc_string_util::vec_to_array_json(data.format));
+    Results.putValue("formatCount", as_Number(data.formatCount));
+    Results.putValue("hwnd", as_Number(data.hwnd));
+    Results.putValue("id", as_Number(data.id));
 
-    return Results;
+    return Results.toValue();
 }
 
 napi_value enumClipboardFormats(napi_env env, napi_callback_info info)
@@ -952,21 +951,22 @@ napi_value getClipboardHTML(napi_env env, napi_callback_info info)
 {
     auto ClipboardHtml = clip_util::GetClipboardHtml(NULL);
     auto HtmlItem = ClipboardHtml.getHtmlItem();
+
+    auto Results = hmc_napi_create_value::jsObject(env);
+
     if (HtmlItem.is_valid)
     {
-        napi_value Results;
-        napi_create_object(env, &Results);
 
-        hmc_napi_create_value::Object::putValue(env, Results, "data", HtmlItem.data);
-        hmc_napi_create_value::Object::putValue(env, Results, "EndFragment", as_Number(HtmlItem.EndFragment));
-        hmc_napi_create_value::Object::putValue(env, Results, "EndHTML", as_Number(HtmlItem.EndHTML));
-        hmc_napi_create_value::Object::putValue(env, Results, "is_valid", as_Boolean(HtmlItem.is_valid));
-        hmc_napi_create_value::Object::putValue(env, Results, "SourceURL", HtmlItem.SourceURL);
-        hmc_napi_create_value::Object::putValue(env, Results, "StartFragment", as_Number(HtmlItem.StartFragment));
-        hmc_napi_create_value::Object::putValue(env, Results, "StartHTML", as_Number(HtmlItem.StartHTML));
-        hmc_napi_create_value::Object::putValue(env, Results, "Version", as_Numberf(HtmlItem.Version));
+        Results.putString("data", HtmlItem.data);
+        Results.putValue("EndFragment", as_Number(HtmlItem.EndFragment));
+        Results.putValue("EndHTML", as_Number(HtmlItem.EndHTML));
+        Results.putValue("is_valid", as_Boolean(HtmlItem.is_valid));
+        Results.putString("SourceURL", HtmlItem.SourceURL);
+        Results.putValue("StartFragment", as_Number(HtmlItem.StartFragment));
+        Results.putValue("StartHTML", as_Number(HtmlItem.StartHTML));
+        Results.putValue("Version", as_Numberf(HtmlItem.Version));
 
-        return Results;
+        return Results.toValue();
     }
 
     return hmc_napi_create_value::Null(env);
