@@ -12,25 +12,31 @@ bool hmc_screen::isInside(int x1, int y1, int x2, int y2, int x, int y)
 // 截屏并且将其写入到文件系统
 void hmc_screen::CaptureBmpToFile(string filename, int x, int y, int nScopeWidth, int nScopeHeight)
 {
-    vector<std::uint8_t> buffer;
-    CaptureBmpToBuff(buffer, x, y, nScopeWidth, nScopeHeight);
-
-    std::ofstream OutFile(filename.c_str(), std::ofstream::ios_base::trunc|std::ofstream::ios_base::binary );
-
-    if (!OutFile.is_open())
+    try
     {
-        return;
-    }
+        vector<std::uint8_t> buffer;
+        CaptureBmpToBuff(buffer, x, y, nScopeWidth, nScopeHeight);
 
-    OutFile.write(reinterpret_cast<char *>(buffer.data()),buffer.size());
+        std::ofstream OutFile(filename.c_str(), std::ofstream::ios_base::trunc | std::ofstream::ios_base::binary);
 
-    if (OutFile.fail())
-    {
+        if (!OutFile.is_open())
+        {
+            return;
+        }
+
+        OutFile.write(reinterpret_cast<char *>(buffer.data()), buffer.size());
+
+        if (OutFile.fail())
+        {
+            OutFile.close();
+            return;
+        }
+
         OutFile.close();
-        return;
     }
-
-    OutFile.close();
+    catch (...)
+    {
+    }
 }
 
 // 截屏bmp文件 并且返回为缓冲区
@@ -56,7 +62,7 @@ void hmc_screen::CaptureBmpToBuff(vector<unsigned char> &buffer, int x, int y, i
         // 将位图选入内存DC中
         HBITMAP hOldBitmap = (HBITMAP)SelectObject(hMemoryDC, hBitmap);
         // 将屏幕内容拷贝到内存DC中
-        BitBlt(hMemoryDC, 0, 0, nScopeWidth, nScopeHeight, hScreenDC, 0, 0, SRCCOPY);
+        BitBlt(hMemoryDC, x, y, nScopeWidth, nScopeHeight, hScreenDC, 0, 0, SRCCOPY);
         // 将位图保存到缓冲区
         PBITMAPINFO pBitmapInfo = (PBITMAPINFO) new char[sizeof(BITMAPINFOHEADER)];
         memset(pBitmapInfo, 0, sizeof(BITMAPINFOHEADER));
@@ -93,6 +99,9 @@ void hmc_screen::CaptureBmpToBuff(vector<unsigned char> &buffer, int x, int y, i
     }
     catch (...)
     {
+        buffer.resize(0);
+        buffer.shrink_to_fit();
+        buffer.clear();
     }
 }
 

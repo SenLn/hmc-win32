@@ -39,56 +39,17 @@
     <ClCompile Include="..\main.cpp">
       <Filter>源代码</Filter>
     </ClCompile>
-    <ClCompile Include="..\export\clip.cpp">
-      <Filter>源代码\export</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_console_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_json_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_napi_value_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_process_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_registr_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_shell_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_string_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_usb_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_windows_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_automation_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_byte_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_clip_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
-    <ClCompile Include="..\export\shell.cpp">
-      <Filter>源代码\export</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\hmc-module\src\hmc_screen_util.cpp">
-      <Filter>hmc-module</Filter>
-    </ClCompile>
     <ClCompile Include="..\export\screen.cpp">
       <Filter>源代码\export</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\hmc-module\src\hmc_napi_value_util.cpp">
+      <Filter>hmc-module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\hmc-module\src\hmc_screen_util.cpp">
+      <Filter>hmc-module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\hmc-module\src\hmc_string_util.cpp">
+      <Filter>hmc-module</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

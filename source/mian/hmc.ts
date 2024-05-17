@@ -489,7 +489,7 @@ export class HWND extends Number {
      * @param opacity -1 - 255
      */
     setTransparent(opacity: number) {
-        if (opacity > -1 || opacity < 255) {
+        if (opacity < -1 || opacity > 255) {
             throw new Error(
                 "fun <setTransparent> arg:<Opacity> is only allowed from -1 to 255"
             );
