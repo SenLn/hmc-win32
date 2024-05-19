@@ -1,6 +1,6 @@
 {
   "name": "hmc-win32",
-  "version": "1.4.9",
+  "version": "1.4.92",
   "description": "Connect to the system api in the easiest way (win-api)",
   "license": "MIT License",
   "main": "./index.js",
@@ -11,10 +11,13 @@
   },
   "files": [
     "hmc.d.ts",
+    "hmc2.d.ts",
     "vkKey.d.ts",
     "chcpList.d.ts",
     "bin/HMC_x64.node",
     "bin/HMC_x86.node",
+    "bin/HMC@2_x64.node",
+    "bin/HMC@2_x86.node",
     "index.js"
   ],
   "homepage": "https://kihlh.gitbook.io/hmc/",

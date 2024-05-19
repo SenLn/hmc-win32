@@ -7,6 +7,9 @@ import { chcpList } from "./chcpList";
 import { KeyboardcodeComparisonTable, KeyboardcodeEmenList, VK_VirtualKey, VK_code, VK_key, VK_keyCode, vkKey } from "./vkKey";
 import child_process = require("child_process");
 import net = require("net");
+import { HMCC, captureBmpToBuff, captureBmpToFile, closeWindow2, closeWindow2Sync, getThumbnailPng, native2, readElectronHandle, showContextMenu } from "./hmc2";
+import beta = require('./hmc2');
+
 const argvSplit: (str: string) => string[] = require("argv-split");
 let $_thenConsole: HWND | null = null;
 
@@ -54,6 +57,7 @@ const get_native: () => HMC.Native = (binPath?: string) => {
         function fnArrStr(...args: any[]) { console.error(HMCNotPlatform); return "[]" }
 
         return {
+            v2:{},
             getRegistrBuffValue: fnNull,
             getRegistrValueStat: fnNull,
             removeRegistrValue: fnBool,
@@ -212,7 +216,6 @@ const get_native: () => HMC.Native = (binPath?: string) => {
             enumProcessHandle: fnNum,
             getModulePathList: fnStrList,
             getColor() { return { r: 0, g: 0, b: 0, hex: "#000000" } as HMC.Color },
-            captureBmpToFile: fnVoid,
             sendKeyboard: fnBool,
             sendBasicKeys: fnBool,
             sendKeyT2C: fnVoid,
@@ -268,6 +271,8 @@ const get_native: () => HMC.Native = (binPath?: string) => {
 };
 export const native: HMC.Native = get_native();
 
+native.v2 = native2;
+
 /**
  * 句柄 可以视为是一个数字也可以视为是一个功能 {0}
  * 继承了 Number 的构建类
@@ -295,7 +300,30 @@ export class HWND extends Number {
         if (!this.exists) return false;
         return native.lookHandleCloseWindow(this.HWND);
     }
+
     /**
+     * [异步 不支持并发] 关闭窗口
+     * - 1 温柔的关闭 (正常关闭)
+     * - 2 关闭 / 系统级(半强制)
+     * - 3 关闭线程 (强制)
+     */
+    close2(grade?: 1 | 2 | 3) {
+        if (!this.exists) return false;
+        return native2?.closeWindow2 ? native2?.closeWindow2(this.HWND, 2) : Promise.resolve(false);
+    }
+
+    /**
+     * [同步步 不支持并发] 关闭窗口
+     * - 1 温柔的关闭 (正常关闭)
+     * - 2 关闭 / 系统级(半强制)
+     * - 3 关闭线程 (强制)
+     */
+    close2Sync(grade?: 1 | 2 | 3) {
+        if (!this.exists) return false;
+        return native2?.closeWindow2Sync ? native2?.closeWindow2Sync(this.HWND, 2) : false;
+    }
+
+    /*
      * 窗口位置
      */
     get rect(): HMC.Rect | null {
@@ -1237,6 +1265,7 @@ export module HMC {
     }
 
     export type Native = {
+        v2:HMCC;
         // _SET_HMC_DEBUG(): boolean;
         /**版本号 */
         version: string;
@@ -1686,15 +1715,15 @@ export module HMC {
          * @param y 从上面开始的坐标
          */
         getColor(x: number, y: number): Color;
-        /**
-         * 截屏指定的宽高坐标 并将其存储写入为文件 
-         * @param FilePath 文件路径
-         * @param x 从左边的哪里开始 为空为0
-         * @param y 从顶部的哪里开始 为空为0
-         * @param width 宽度
-         * @param height 高度
-         */
-        captureBmpToFile(FilePath: string, x: number | null | 0, y: number | null | 0, width: number | null | 0, height: number | null | 0): void;
+        // /**
+        //  * 截屏指定的宽高坐标 并将其存储写入为文件 
+        //  * @param FilePath 文件路径
+        //  * @param x 从左边的哪里开始 为空为0
+        //  * @param y 从顶部的哪里开始 为空为0
+        //  * @param width 宽度
+        //  * @param height 高度
+        //  */
+        // captureBmpToFile(FilePath: string, x: number | null | 0, y: number | null | 0, width: number | null | 0, height: number | null | 0): void;
         /**
          * 响应标准快捷键
          */
@@ -6144,18 +6173,18 @@ export function setWindowIconForExtract(handle: number, Extract: string, index: 
 // export function sendKeyT2CSync(...t2cStr: string[]) {
 
 // }
-/**
-    * 截屏指定的宽高坐标 并将其存储写入为文件 
-    * @param FilePath 文件路径
-    * @param x 从左边的哪里开始 为空为0
-    * @param y 从顶部的哪里开始 为空为0
-    * @param width 宽度
-    * @param height 高度
-    */
-export function captureBmpToFile(FilePath: string, x: number | null, y: number | null, width: number | null, height: number | null) {
-    native.captureBmpToFile(ref.string(FilePath), ref.int(x || 0), ref.int(y || 0), ref.int(width || 0), ref.int(height || 0))
-}
-
+// /**
+//     * 截屏指定的宽高坐标 并将其存储写入为文件 
+//     * @param FilePath 文件路径
+//     * @param x 从左边的哪里开始 为空为0
+//     * @param y 从顶部的哪里开始 为空为0
+//     * @param width 宽度
+//     * @param height 高度
+//     */
+// export function captureBmpToFile(FilePath: string, x: number | null, y: number | null, width: number | null, height: number | null) {
+// native.captureBmpToFile(ref.string(FilePath), ref.int(x || 0), ref.int(y || 0), ref.int(width || 0), ref.int(height || 0))
+// }
+// 
 /**
  * 发送键盘事件
  * @param keyCode 键值
@@ -8201,6 +8230,25 @@ export function findProcess2Sync(ProcessName: string | RegExp | number): Array<{
     return result;
 }
 
+
+// HMC @ 2.0 versions
+export {
+    closeWindow2,
+    closeWindow2Sync,
+    getThumbnailPng,
+    captureBmpToBuff,
+    captureBmpToFile,
+    showContextMenu,
+    readElectronHandle,
+    native2,
+    beta,
+    // getClipboardFilePaths,
+    // setClipboardText,
+    // getClipboardText,
+    // clearClipboard,
+    // setClipboardFilePaths,
+};
+
 export const Environment = {
     hasKeyExists,
     hasUseKeyExists,
@@ -8224,7 +8272,23 @@ export const Environment = {
 };
 
 export const Registr = registr;
+
 export const hmc = {
+    // HMC @ 2.0 versions
+    closeWindow2,
+    closeWindow2Sync,
+    getThumbnailPng,
+    captureBmpToBuff,
+    captureBmpToFile,
+    showContextMenu,
+    readElectronHandle,
+
+    // getClipboardFilePaths,
+    // setClipboardText,
+    // getClipboardText,
+    // clearClipboard,
+    // setClipboardFilePaths,
+    // -----------------------
     getLastInputTime,
     getCursorPos,
     Auto,
@@ -8252,7 +8316,7 @@ export const hmc = {
     _popen,
     alert,
     analysisDirectPath,
-    captureBmpToFile,
+    // captureBmpToFile,
     clearClipboard,
     closeWindow,
     closedHandle,

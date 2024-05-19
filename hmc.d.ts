@@ -1,7 +1,7 @@
 /// <reference types="node" />
-/// <reference types="node" />
-import path = require("path");
 import { VK_VirtualKey, VK_code, VK_key, VK_keyCode, vkKey } from "./vkKey";
+import { HMCC, captureBmpToBuff, captureBmpToFile, closeWindow2, closeWindow2Sync, getThumbnailPng, native2, readElectronHandle, showContextMenu } from "./hmc2";
+import beta = require('./hmc2');
 /**注册表根目录 */
 declare const Hkey: {
     /**用作默认用户首选设置|也作为单个用户的首选设置 */
@@ -35,8 +35,19 @@ export declare class HWND extends Number {
      */
     close(): boolean;
     /**
-     * 窗口位置
+     * [异步 不支持并发] 关闭窗口
+     * - 1 温柔的关闭 (正常关闭)
+     * - 2 关闭 / 系统级(半强制)
+     * - 3 关闭线程 (强制)
      */
+    close2(grade?: 1 | 2 | 3): false | Promise<boolean>;
+    /**
+     * [同步步 不支持并发] 关闭窗口
+     * - 1 温柔的关闭 (正常关闭)
+     * - 2 关闭 / 系统级(半强制)
+     * - 3 关闭线程 (强制)
+     */
+    close2Sync(grade?: 1 | 2 | 3): boolean;
     get rect(): HMC.Rect | null;
     /**
      * 窗口名称
@@ -319,6 +330,118 @@ export declare module HMC {
         WM_MOUSEWHEEL = 522
     }
     export type direction = "right" | "left" | "right-top" | "left-bottom" | "left-top" | "right-bottom" | "bottom" | "top" | "middle";
+    export enum SYSTEM_METRICS_NINDEX {
+        SM_ARRANGE = 56,
+        SM_CLEANBOOT = 67,
+        SM_CMONITORS = 80,
+        SM_CMOUSEBUTTONS = 43,
+        SM_CONVERTIBLESLATEMODE = 8195,
+        SM_CXBORDER = 5,
+        SM_CXCURSOR = 13,
+        SM_CXDLGFRAME = 7,
+        SM_CXDOUBLECLK = 36,
+        SM_CXDRAG = 68,
+        SM_CXEDGE = 45,
+        SM_CXFIXEDFRAME = 7,
+        SM_CXFOCUSBORDER = 83,
+        SM_CXFRAME = 32,
+        SM_CXFULLSCREEN = 16,
+        SM_CXHSCROLL = 21,
+        SM_CXHTHUMB = 10,
+        SM_CXICON = 11,
+        SM_CXICONSPACING = 38,
+        SM_CXMAXIMIZED = 61,
+        SM_CXMAXTRACK = 59,
+        SM_CXMENUCHECK = 71,
+        SM_CXMENUSIZE = 54,
+        SM_CXMIN = 28,
+        SM_CXMINIMIZED = 57,
+        SM_CXMINSPACING = 47,
+        SM_CXMINTRACK = 34,
+        SM_CXPADDEDBORDER = 92,
+        SM_CXSCREEN = 0,
+        SM_CXSIZE = 30,
+        SM_CXSIZEFRAME = 32,
+        SM_CXSMICON = 49,
+        SM_CXSMSIZE = 52,
+        SM_CXVIRTUALSCREEN = 78,
+        SM_CXVSCROLL = 2,
+        SM_CYBORDER = 6,
+        SM_CYCAPTION = 4,
+        SM_CYCURSOR = 14,
+        SM_CYDLGFRAME = 8,
+        SM_CYDOUBLECLK = 37,
+        SM_CYDRAG = 69,
+        SM_CYEDGE = 46,
+        SM_CYFIXEDFRAME = 8,
+        SM_CYFOCUSBORDER = 84,
+        SM_CYFRAME = 33,
+        SM_CYFULLSCREEN = 17,
+        SM_CYHSCROLL = 3,
+        SM_CYICON = 12,
+        SM_CYICONSPACING = 39,
+        SM_CYKANJIWINDOW = 18,
+        SM_CYMAXIMIZED = 62,
+        SM_CYMAXTRACK = 60,
+        SM_CYMENU = 15,
+        SM_CYMENUCHECK = 72,
+        SM_CYMENUSIZE = 55,
+        SM_CYMIN = 29,
+        SM_CYMINIMIZED = 58,
+        SM_CYMINSPACING = 48,
+        SM_CYMINTRACK = 35,
+        SM_CYSCREEN = 1,
+        SM_CYSIZE = 31,
+        SM_CYSIZEFRAME = 33,
+        SM_CYSMCAPTION = 51,
+        SM_CYSMICON = 50,
+        SM_CYSMSIZE = 53,
+        SM_CYVIRTUALSCREEN = 79,
+        SM_CYVSCROLL = 20,
+        SM_CYVTHUMB = 9,
+        SM_DBCSENABLED = 42,
+        SM_DEBUG = 22,
+        SM_DIGITIZER = 94,
+        SM_IMMENABLED = 82,
+        SM_MAXIMUMTOUCHES = 95,
+        SM_MEDIACENTER = 87,
+        SM_MENUDROPALIGNMENT = 40,
+        SM_MIDEASTENABLED = 74,
+        SM_MOUSEPRESENT = 19,
+        SM_MOUSEHORIZONTALWHEELPRESENT = 91,
+        SM_MOUSEWHEELPRESENT = 75,
+        SM_NETWORK = 63,
+        SM_PENWINDOWS = 41,
+        SM_REMOTECONTROL = 8193,
+        SM_REMOTESESSION = 4096,
+        SM_SAMEDISPLAYFORMAT = 81,
+        SM_SECURE = 44,
+        SM_SERVERR2 = 89,
+        SM_SHOWSOUNDS = 70,
+        SM_SHUTTINGDOWN = 8192,
+        SM_SLOWMACHINE = 73,
+        SM_STARTER = 88,
+        SM_SWAPBUTTON = 23,
+        SM_SYSTEMDOCKED = 8196,
+        SM_TABLETPC = 86,
+        SM_XVIRTUALSCREEN = 76,
+        SM_YVIRTUALSCREEN = 77,
+        ARW_BOTTOMLEFT = 0,
+        ARW_BOTTOMRIGHT = 1,
+        ARW_TOPLEFT = 2,
+        ARW_TOPRIGHT = 3,
+        ARW_DOWN = 4,
+        ARW_HIDE = 8,
+        ARW_LEFT = 0,
+        ARW_RIGHT = 0,
+        ARW_UP = 4,
+        NID_INTEGRATED_TOUCH = 1,
+        NID_EXTERNAL_TOUCH = 2,
+        NID_INTEGRATED_PEN = 4,
+        NID_EXTERNAL_PEN = 8,
+        NID_MULTI_INPUT = 64,
+        NID_READY = 128
+    }
     export enum MouseKeyName {
         UNKNOWN = "unknown",
         WM_LBUTTONDOWN = "left-button-down",
@@ -450,7 +573,31 @@ export declare module HMC {
         /** 目标路径**/
         path: string;
     }
-    export type mouse_event = /**不支持的属性 请使用 setCursorPos 方法设置位置*/ 32768 | /**左键按下 */ 2 | /**左边的按钮是向上的 */ 4 | /**中间的按钮是向下的 */ 32 | /**中间的按钮是向上的 */ 64 | /**鼠标移动和按钮点击 */ 1 | /**鼠标右键按下 */ 8 | /**鼠标右键弹起 */ 16 | /**滚轮按钮被旋转 */ 2048 | /**按下了 X 按钮 */ 128 | /**X 按钮被释放 */ 256 | /**滚轮按钮倾斜*/ 4096 | /**不支持的属性 请使用 setCursorPos 方法设置位置*/ "MOUSEEVENTF_ABSOLUTE" | /**左键按下 */ "MOUSEEVENTF_LEFTDOWN" | /**左边的按钮是向上的 */ "MOUSEEVENTF_LEFTUP" | /**中间的按钮是向下的 */ "MOUSEEVENTF_MIDDLEDOWN" | /**中间的按钮是向上的 */ "MOUSEEVENTF_MIDDLEUP" | /**鼠标移动和按钮点击 */ "MOUSEEVENTF_MOVE" | /**鼠标右键按下 */ "MOUSEEVENTF_RIGHTDOWN" | /**鼠标右键弹起 */ "MOUSEEVENTF_RIGHTUP" | /**滚轮按钮被旋转 */ "MOUSEEVENTF_WHEEL" | /**按下了 X 按钮 */ "MOUSEEVENTF_XDOWN" | /**X 按钮被释放 */ "MOUSEEVENTF_XUP" | /**滚轮按钮倾斜*/ "MOUSEEVENTF_HWHEEL";
+    export type mouse_event = 
+    /**不支持的属性 请使用 setCursorPos 方法设置位置*/ 32768 | 
+    /**左键按下 */ 2 | 
+    /**左边的按钮是向上的 */ 4 | 
+    /**中间的按钮是向下的 */ 32 | 
+    /**中间的按钮是向上的 */ 64 | 
+    /**鼠标移动和按钮点击 */ 1 | 
+    /**鼠标右键按下 */ 8 | 
+    /**鼠标右键弹起 */ 16 | 
+    /**滚轮按钮被旋转 */ 2048 | 
+    /**按下了 X 按钮 */ 128 | 
+    /**X 按钮被释放 */ 256 | 
+    /**滚轮按钮倾斜*/ 4096 | 
+    /**不支持的属性 请使用 setCursorPos 方法设置位置*/ "MOUSEEVENTF_ABSOLUTE" | 
+    /**左键按下 */ "MOUSEEVENTF_LEFTDOWN" | 
+    /**左边的按钮是向上的 */ "MOUSEEVENTF_LEFTUP" | 
+    /**中间的按钮是向下的 */ "MOUSEEVENTF_MIDDLEDOWN" | 
+    /**中间的按钮是向上的 */ "MOUSEEVENTF_MIDDLEUP" | 
+    /**鼠标移动和按钮点击 */ "MOUSEEVENTF_MOVE" | 
+    /**鼠标右键按下 */ "MOUSEEVENTF_RIGHTDOWN" | 
+    /**鼠标右键弹起 */ "MOUSEEVENTF_RIGHTUP" | 
+    /**滚轮按钮被旋转 */ "MOUSEEVENTF_WHEEL" | 
+    /**按下了 X 按钮 */ "MOUSEEVENTF_XDOWN" | 
+    /**X 按钮被释放 */ "MOUSEEVENTF_XUP" | 
+    /**滚轮按钮倾斜*/ "MOUSEEVENTF_HWHEEL";
     export type MB_UINT = /**消息框包含三个按钮：终止、重试和忽略。 */ "MB_ABORTRETRYIGNORE" | /**消息框包含三个按钮：取消、重试、继续。使用此消息框类型而不是 MB_ABORTRETRYIGNORE。 */ "MB_CANCELTRYCONTINUE" | /**向消息框 添加帮助按钮。当用户单击帮助按钮或按 F1 时|系统会向所有者 发送WM_HELP消息。 */ "MB_HELP" | /**消息框包含一个按钮：确定。这是默认设置。 */ "MB_OK" | /**消息框包含两个按钮：确定和取消。 */ "MB_YESNOCANCEL" | /**消息框包含两个按钮：是和否。 */ "MB_YESNO" | /**消息框包含两个按钮：OK和Cancel。 */ "MB_OKCANCEL" | /**消息框包含两个按钮：OK和Cancel。 */ "MB_RETRYCANCEL" | /**消息框包含三个按钮：Yes、No和Cancel。 一个停止标志图标出现在消息框中。*/ "MB_ICONERROR" | /**一个停止标志图标出现在消息框中。 */ "MB_ICONSTOP" | /**问号图标出现在消息框中。不再推荐使用问号消息图标|因为它不能清楚地表示特定类型的消息|并且作为问题的消息措辞可能适用于任何消息类型。此外|用户可能会将消息符号问号与帮助信息混淆。因此|请勿在消息框中使用此问号消息符号。系统继续支持它的包含只是为了向后兼容。 */ "MB_ICONQUESTION" | /**一个由圆圈中的小写字母i组成的图标出现在消息框中。 */ "MB_ICONASTERISK" | "MB_ICONINFORMATION" | /**消息框中会出现一个感叹号图标。 */ "MB_ICONEXCLAMATION" | /** 消息框中会出现一个感叹号图标。 */ "MB_ICONWARNING" | /* 消息框成为前台窗口 **/ "MB_TOPMOST" | "MB_SETFOREGROUND" | "MB_RTLREADING" | "MB_RIGHT" | "MB_DEFAULT_DESKTOP_ONLY" | "MB_TASKMODAL" | "MB_SYSTEMMODAL" | "MB_APPLMODAL" | "MB_DEFBUTTON4" | "MB_DEFBUTTON3" | "MB_DEFBUTTON2" | "MB_ICONHAND" | "MB_DEFBUTTON1";
     export type HID_USB_INFO = {
         /**类型**/
@@ -492,6 +639,7 @@ export declare module HMC {
         PrivatePageCount: number;
     }
     export type Native = {
+        v2: HMCC;
         /**版本号 */
         version: string;
         /**功能介绍 */
@@ -939,15 +1087,6 @@ export declare module HMC {
          * @param y 从上面开始的坐标
          */
         getColor(x: number, y: number): Color;
-        /**
-         * 截屏指定的宽高坐标 并将其存储写入为文件
-         * @param FilePath 文件路径
-         * @param x 从左边的哪里开始 为空为0
-         * @param y 从顶部的哪里开始 为空为0
-         * @param width 宽度
-         * @param height 高度
-         */
-        captureBmpToFile(FilePath: string, x: number | null | 0, y: number | null | 0, width: number | null | 0, height: number | null | 0): void;
         /**
          * 响应标准快捷键
          */
@@ -2823,7 +2962,7 @@ export declare function hasPortUDP(port: number, callBack: (hasPort: boolean) =>
 /**
  * 格式化 驱动器路径 ('\Device\HarddiskVolume2' => "D:\")
  */
-export declare function formatVolumePath(VolumePath: string): string | path.PlatformPath | undefined;
+export declare function formatVolumePath(VolumePath: string): string | undefined;
 /**
  * 获取当前文件系统的驱动器名称及路径
  * @returns
@@ -3047,6 +3186,7 @@ declare class Iohook_Mouse {
     _screen_Information: null | HMC.DeviceCaps;
     private _Close;
     _direction_percentage: number;
+    private _next_Sleep;
     constructor();
     /**
      * 获取之前的0-64个记录
@@ -3064,6 +3204,13 @@ declare class Iohook_Mouse {
     on(eventName: "button", listener: (event: HMC.MouseKeyName, MousePoint: MousePoint) => void): this;
     on(eventName: "wheel", listener: (MousePoint: MousePoint) => void): this;
     on(eventName: "move", listener: (x: number, y: number, MousePoint: MousePoint, data: HMC.MouseMoveEventData) => void): this;
+    /**
+     * 设置于hmc 对接的刷新延迟毫秒数 数字越小读取越快但是性能消耗将会增加
+     * @param Sleep 要求 10ms - 5000ms
+     * @default 50ms
+     * @returns
+     */
+    setRefreshRate(Sleep?: number): boolean;
     /**
      * 开始
      * @returns
@@ -3141,15 +3288,6 @@ export declare const mouseHook: Iohook_Mouse;
  * @param index 图标位置索引 例如文件显示的图标默认是0
  */
 export declare function setWindowIconForExtract(handle: number, Extract: string, index: number): void;
-/**
-    * 截屏指定的宽高坐标 并将其存储写入为文件
-    * @param FilePath 文件路径
-    * @param x 从左边的哪里开始 为空为0
-    * @param y 从顶部的哪里开始 为空为0
-    * @param width 宽度
-    * @param height 高度
-    */
-export declare function captureBmpToFile(FilePath: string, x: number | null, y: number | null, width: number | null, height: number | null): void;
 /**
  * 发送键盘事件
  * @param keyCode 键值
@@ -3286,6 +3424,7 @@ declare class Iohook_Keyboard {
     private _onlistenerCountList;
     private _oncelistenerCountList;
     private _Close;
+    private _next_Sleep;
     constructor();
     once(eventName: "start" | "close", listener: () => void): this;
     once(eventName: "data", listener: (data: (`${number}|0` | `${number}|1`)[]) => void): this;
@@ -3295,6 +3434,13 @@ declare class Iohook_Keyboard {
     on(eventName: "data", listener: (data: (`${number}|0` | `${number}|1`)[]) => void): this;
     on(eventName: "change", listener: (KeyboardPoint: Keyboard) => void): this;
     on(listener: (KeyboardPoint: Keyboard) => void): this;
+    /**
+     * 设置于hmc 对接的刷新延迟毫秒数 数字越小读取越快但是性能消耗将会增加
+     * @param Sleep 要求 10ms - 10,000
+     * @default 50ms
+     * @returns
+     */
+    setRefreshRate(Sleep?: number): boolean;
     /**
      * 开始
      * @returns
@@ -4061,6 +4207,7 @@ export declare function findProcess2Sync(ProcessName: string | RegExp | number):
     name: string;
     path: string;
 }>;
+export { closeWindow2, closeWindow2Sync, getThumbnailPng, captureBmpToBuff, captureBmpToFile, showContextMenu, readElectronHandle, native2, beta, };
 export declare const Environment: {
     hasKeyExists: typeof hasKeyExists;
     hasUseKeyExists: typeof hasUseKeyExists;
@@ -4250,6 +4397,13 @@ export declare const Registr: {
     isRegistrTreeKey: typeof isRegistrTreeKey;
 };
 export declare const hmc: {
+    closeWindow2: typeof closeWindow2;
+    closeWindow2Sync: typeof closeWindow2Sync;
+    getThumbnailPng: typeof getThumbnailPng;
+    captureBmpToBuff: typeof captureBmpToBuff;
+    captureBmpToFile: typeof captureBmpToFile;
+    showContextMenu: typeof showContextMenu;
+    readElectronHandle: typeof readElectronHandle;
     getLastInputTime: typeof getLastInputTime;
     getCursorPos: typeof getCursorPos;
     Auto: {
@@ -4603,7 +4757,6 @@ export declare const hmc: {
     _popen: typeof _popen;
     alert: typeof alert;
     analysisDirectPath: typeof analysisDirectPath;
-    captureBmpToFile: typeof captureBmpToFile;
     clearClipboard: typeof clearClipboard;
     closeWindow: typeof lookHandleCloseWindow;
     closedHandle: typeof closedHandle;
