@@ -7,7 +7,7 @@ import { chcpList } from "./chcpList";
 import { KeyboardcodeComparisonTable, KeyboardcodeEmenList, VK_VirtualKey, VK_code, VK_key, VK_keyCode, vkKey } from "./vkKey";
 import child_process = require("child_process");
 import net = require("net");
-import { HMCC, captureBmpToBuff, captureBmpToFile, closeWindow2, closeWindow2Sync, getThumbnailPng, native2, readElectronHandle, showContextMenu } from "./hmc2";
+import { HMCC, captureBmp2, captureBmp2Sync, captureBmpToBuff, captureBmpToFile, closeWindow2, closeWindow2Sync, getThumbnailPng, native2, readElectronHandle, showContextMenu } from "./hmc2";
 import beta = require('./hmc2');
 
 const argvSplit: (str: string) => string[] = require("argv-split");
@@ -8242,6 +8242,8 @@ export {
     readElectronHandle,
     native2,
     beta,
+    captureBmp2,
+    captureBmp2Sync,
     // getClipboardFilePaths,
     // setClipboardText,
     // getClipboardText,

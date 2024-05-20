@@ -387,7 +387,10 @@ var init_vkKey = __esm({
 // source/mian/hmc2.ts
 var hmc2_exports = {};
 __export(hmc2_exports, {
+  HMCC: () => HMCC,
   asyncTaskQueue: () => asyncTaskQueue,
+  captureBmp2: () => captureBmp2,
+  captureBmp2Sync: () => captureBmp2Sync,
   captureBmpToBuff: () => captureBmpToBuff,
   captureBmpToFile: () => captureBmpToFile,
   clearClipboard: () => clearClipboard,
@@ -496,20 +499,75 @@ function setFolderIcon(folderPath, iconPath, iconIndex) {
     return false;
   return native2.setFolderIcon(ref.string(folderPath), ref.string(iconPath), ref.int(iconIndex || 0));
 }
-var get_native, native2, FunctionTaskQueue, asyncTaskQueue;
+async function captureBmp2(...args) {
+  if (!native2.captureBmp2)
+    return Promise.resolve(null);
+  if (!args.length) {
+    return native2.captureBmp2();
+  }
+  if (args.length == 1) {
+    if (typeof args[0] == "number" || typeof args[0] == "object") {
+      return native2.captureBmp2(ref.int(args[0]));
+    }
+    return native2.captureBmp2(ref.string(args[0]));
+  }
+  if (args.length == 2) {
+    return native2.captureBmp2(ref.int(args[0]), ref.string(args[1]));
+  }
+  if (args.length == 4) {
+    return native2.captureBmp2(ref.int(args[0]), ref.int(args[1]), ref.int(args[2]), ref.int(args[3]));
+  }
+  if (args.length == 5) {
+    return native2.captureBmp2(ref.string(args[0]), ref.int(args[1]), ref.int(args[2]), ref.int(args[3]), ref.int(args[4]));
+  }
+  return Promise.resolve(null);
+}
+function captureBmp2Sync(...args) {
+  if (!native2.captureBmp2Sync)
+    return null;
+  if (!args.length) {
+    return native2.captureBmp2Sync();
+  }
+  if (args.length == 1) {
+    if (typeof args[0] == "number" || typeof args[0] == "object") {
+      return native2.captureBmp2Sync(ref.int(args[0]));
+    }
+    return native2.captureBmp2Sync(ref.string(args[0]));
+  }
+  if (args.length == 2) {
+    return native2.captureBmp2Sync(ref.int(args[0]), ref.string(args[1]));
+  }
+  if (args.length == 4) {
+    return native2.captureBmp2Sync(ref.int(args[0]), ref.int(args[1]), ref.int(args[2]), ref.int(args[3]));
+  }
+  if (args.length == 5) {
+    return native2.captureBmp2Sync(ref.string(args[0]), ref.int(args[1]), ref.int(args[2]), ref.int(args[3]), ref.int(args[4]));
+  }
+  return null;
+}
+var HMCC, get_native, native2, AsyncFunctionTaskQueue, asyncTaskQueue;
 var init_hmc2 = __esm({
   "source/mian/hmc2.ts"() {
     "use strict";
     init_hmc();
+    ((HMCC3) => {
+      let FS_MK_LINK_TARGET_TYPE;
+      ((FS_MK_LINK_TARGET_TYPE2) => {
+        FS_MK_LINK_TARGET_TYPE2[FS_MK_LINK_TARGET_TYPE2["CREATE_DIR_SYMLINK"] = 166] = "CREATE_DIR_SYMLINK";
+        FS_MK_LINK_TARGET_TYPE2[FS_MK_LINK_TARGET_TYPE2["CREATE_SYMLINK"] = 168] = "CREATE_SYMLINK";
+        FS_MK_LINK_TARGET_TYPE2[FS_MK_LINK_TARGET_TYPE2["CREATE_HARD_LINK"] = 170] = "CREATE_HARD_LINK";
+        FS_MK_LINK_TARGET_TYPE2[FS_MK_LINK_TARGET_TYPE2["CREATE_SYMBOLIC_LINK"] = 172] = "CREATE_SYMBOLIC_LINK";
+      })(FS_MK_LINK_TARGET_TYPE = HMCC3.FS_MK_LINK_TARGET_TYPE || (HMCC3.FS_MK_LINK_TARGET_TYPE = {}));
+    })(HMCC || (HMCC = {}));
     get_native = (binPath) => {
       function _require_bin() {
         try {
           if (binPath)
             return require(binPath);
           if (process.arch.match(/^x32|ia32$/))
-            return require("./bin/HMC@2_x86.node");
+            return require("./bin/HMC@Beta_x86.node");
           if (process.arch.match(/^x64$/))
-            return require("./bin/HMC@2_x64.node");
+            return require("./bin/HMC@Beta_x64.node");
         } catch (O_O) {
         }
         return null;
@@ -518,7 +576,7 @@ var init_hmc2 = __esm({
       return Native;
     };
     native2 = get_native();
-    FunctionTaskQueue = class {
+    AsyncFunctionTaskQueue = class {
       constructor() {
         this.queues = /* @__PURE__ */ new Map();
       }
@@ -553,7 +611,7 @@ var init_hmc2 = __esm({
         }
       }
     };
-    asyncTaskQueue = new FunctionTaskQueue();
+    asyncTaskQueue = new AsyncFunctionTaskQueue();
   }
 });
 
@@ -732,6 +790,8 @@ __export(hmc_exports, {
   alert: () => alert,
   analysisDirectPath: () => analysisDirectPath,
   beta: () => beta,
+  captureBmp2: () => captureBmp2,
+  captureBmp2Sync: () => captureBmp2Sync,
   captureBmpToBuff: () => captureBmpToBuff,
   captureBmpToFile: () => captureBmpToFile,
   clearClipboard: () => clearClipboard2,
@@ -5501,6 +5561,8 @@ init_hmc();
   alert,
   analysisDirectPath,
   beta,
+  captureBmp2,
+  captureBmp2Sync,
   captureBmpToBuff,
   captureBmpToFile,
   clearClipboard,

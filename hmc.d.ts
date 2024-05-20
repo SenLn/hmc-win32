@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { VK_VirtualKey, VK_code, VK_key, VK_keyCode, vkKey } from "./vkKey";
-import { HMCC, captureBmpToBuff, captureBmpToFile, closeWindow2, closeWindow2Sync, getThumbnailPng, native2, readElectronHandle, showContextMenu } from "./hmc2";
+import { HMCC, captureBmp2, captureBmp2Sync, captureBmpToBuff, captureBmpToFile, closeWindow2, closeWindow2Sync, getThumbnailPng, native2, readElectronHandle, showContextMenu } from "./hmc2";
 import beta = require('./hmc2');
 /**注册表根目录 */
 declare const Hkey: {
@@ -2789,7 +2789,7 @@ export declare function leftClick(ms?: number): void;
  * @description 衍生api(已预设): `confirm`  `alert` `MessageError` `MessageStop`
  * @returns
  */
-export declare function messageBox(message: string, title: string, MB_UINT: HMC.MB_UINT): 1 | 2 | 3 | 4 | 5 | 6 | 7 | 10 | 11;
+export declare function messageBox(message: string, title: string, MB_UINT: HMC.MB_UINT): 2 | 1 | 4 | 5 | 3 | 6 | 7 | 10 | 11;
 /**自定义鼠标事件 https://docs.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-mouse_event **/
 export declare function mouse(mouse_event: HMC.mouse_event, ms?: number): void;
 /**
@@ -4207,7 +4207,7 @@ export declare function findProcess2Sync(ProcessName: string | RegExp | number):
     name: string;
     path: string;
 }>;
-export { closeWindow2, closeWindow2Sync, getThumbnailPng, captureBmpToBuff, captureBmpToFile, showContextMenu, readElectronHandle, native2, beta, };
+export { closeWindow2, closeWindow2Sync, getThumbnailPng, captureBmpToBuff, captureBmpToFile, showContextMenu, readElectronHandle, native2, beta, captureBmp2, captureBmp2Sync, };
 export declare const Environment: {
     hasKeyExists: typeof hasKeyExists;
     hasUseKeyExists: typeof hasUseKeyExists;

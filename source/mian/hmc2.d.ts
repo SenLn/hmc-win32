@@ -12,20 +12,12 @@ export declare module HMCC {
         StartHTML: number;
         Version: number;
     };
-}
-interface CaptureBmp {
-    (handle: number): Promise<Buffer | null>;
-    (handle: number, path: string): Promise<boolean>;
-    (x: number, y: number, nScopeWidth: number, nScopeHeight: number): Promise<Buffer | null>;
-    (path: string, x: number, y: number, nScopeWidth: number, nScopeHeight: number): Promise<boolean>;
-    _PromiseTask?: Promise<any>;
-}
-interface CaptureBmpSync {
-    (handle: number): Buffer | null;
-    (handle: number, path: string): boolean;
-    (x: number, y: number, nScopeWidth: number, nScopeHeight: number): Buffer | null;
-    (path: string, x: number, y: number, nScopeWidth: number, nScopeHeight: number): boolean;
-    _PromiseTask?: Promise<any>;
+    enum FS_MK_LINK_TARGET_TYPE {
+        CREATE_DIR_SYMLINK = 166,
+        CREATE_SYMLINK = 168,
+        CREATE_HARD_LINK = 170,
+        CREATE_SYMBOLIC_LINK = 172
+    }
 }
 export type HMCC = {
     /**
@@ -48,8 +40,8 @@ export type HMCC = {
     closeWindow2Sync?: (handle: number, grade: 1 | 2 | 3) => boolean;
     captureBmpToBuff?: (x: number, y: number, nScopeWidth: number, nScopeHeight: number) => null | Buffer;
     captureBmpToFile?: (path: string, x: number, y: number, nScopeWidth: number, nScopeHeight: number) => undefined;
-    captureBmp2?: CaptureBmp;
-    captureBmp2Sync?: CaptureBmpSync;
+    captureBmp2?: HMCC.CaptureBmp;
+    captureBmp2Sync?: HMCC.CaptureBmpSync;
     getClipboardFilePaths?: () => string;
     setClipboardText?: (text: string, is_html?: boolean) => boolean;
     getClipboardText?: () => string | null;
@@ -121,6 +113,24 @@ export type HMCC = {
      */
     setFolderIcon?: (folderPath: string, iconPath: string, iconIndex?: number) => boolean;
     /**
+     * 判断指定文件是否是 软链接/硬链接
+     * @param path
+     * @returns
+     */
+    isLinkLink?: (path: string) => boolean;
+    /**
+     * 创建 软链接/硬链接/目录连接点/文件夹链接
+     * @param targetType 创建类型
+     * - 文件夹链接 CREATE_DIR_SYMLINK = 166
+     * - 软链接 CREATE_SYMLINK = 168
+     * - 硬链接 CREATE_HARD_LINK = 170
+     * - 目录连接点 CREATE_SYMBOLIC_LINK = 172
+     * @param targetPath 目标位置
+     * @param sourcePath 源文件路径
+     * @returns
+     */
+    createFsLink?: (targetType: HMCC.FS_MK_LINK_TARGET_TYPE, targetPath: string, sourcePath: string) => boolean;
+    /**
      * 弹出右键菜单的接口
      * @param hwnd 调用窗口 / 允许为null
      * @param file 指定需要被显示菜单的文件/文件夹/文件列表/ 为空 "" 为驱动器
@@ -129,14 +139,32 @@ export type HMCC = {
      */
     showContextMenu?: (hwnd: number | null, file: string | string[], x: number, y: number) => boolean;
 };
+export declare module HMCC {
+    interface CaptureBmp {
+        (handle: number): Promise<Buffer | null>;
+        (handle: number, path: string): Promise<boolean>;
+        (path: string): Promise<boolean>;
+        (): Promise<Buffer | null>;
+        (x: number, y: number, nScopeWidth: number, nScopeHeight: number): Promise<Buffer | null>;
+        (path: string, x: number, y: number, nScopeWidth: number, nScopeHeight: number): Promise<boolean>;
+    }
+    interface CaptureBmpSync {
+        (handle: number): Buffer | null;
+        (handle: number, path: string): boolean;
+        (path: string): boolean;
+        (): Buffer | null;
+        (x: number, y: number, nScopeWidth: number, nScopeHeight: number): Buffer | null;
+        (path: string, x: number, y: number, nScopeWidth: number, nScopeHeight: number): boolean;
+    }
+}
 export declare const native2: HMCC;
-declare class FunctionTaskQueue {
+declare class AsyncFunctionTaskQueue {
     queues: Map<(...args: any[]) => Promise<any>, any>;
     constructor();
     runTask<T>(fn: (...args: any[]) => Promise<T>, ...args: any[]): Promise<T>;
     next<T>(fn: (...args: any[]) => Promise<T>): Promise<void>;
 }
-export declare const asyncTaskQueue: FunctionTaskQueue;
+export declare const asyncTaskQueue: AsyncFunctionTaskQueue;
 /**
  * 关闭窗口 异步
  * - 1 温柔的关闭 (正常关闭)
@@ -248,4 +276,78 @@ export declare function getTrayList(): Array<HMC.TRAY_ICON>;
  * @returns
  */
 export declare function setFolderIcon(folderPath: string, iconPath: string, iconIndex?: number): boolean;
+/**
+ * 截图主屏幕为bmp缓冲区 [异步]
+ */
+export declare function captureBmp2(): Promise<Buffer | null>;
+/**
+ * 截图窗口句柄区域为bmp缓冲区  [异步]
+ * @param handle 句柄
+ */
+export declare function captureBmp2(handle: number | HWND): Promise<Buffer | null>;
+/**
+ * 截图主屏幕到文件中 [异步]
+ * @param path 文件路径
+ */
+export declare function captureBmp2(path: string): Promise<boolean>;
+/**
+ * 截图窗口句柄区域为文件 [异步]
+ * ? 不会提前将窗口前置 因此会包含其他信息
+ * @param handle 句柄
+ * @param path 文件路径
+ */
+export declare function captureBmp2(handle: number | HWND, path: string): Promise<boolean>;
+/**
+ * 截图主屏幕为bmp缓冲区 [异步]
+ * @param x (x) 从屏幕左边到所在位置得像素数
+ * @param y (y) 从屏幕顶部边到所在位置得像素数
+ * @param nScopeWidth 要求宽度
+ * @param nScopeHeight 要求高度
+ */
+export declare function captureBmp2(x: number, y: number, nScopeWidth: number, nScopeHeight: number): Promise<Buffer | null>;
+/**
+ * 截图主屏幕为bmp文件 [异步]
+ * @param x (x) 从屏幕左边到所在位置得像素数
+ * @param y (y) 从屏幕顶部边到所在位置得像素数
+ * @param nScopeWidth 要求宽度
+ * @param nScopeHeight 要求高度
+ */
+export declare function captureBmp2(path: string, x: number, y: number, nScopeWidth: number, nScopeHeight: number): Promise<boolean>;
+/**
+ * 截图主屏幕为bmp缓冲区 [同步]
+ */
+export declare function captureBmp2Sync(): Buffer | null;
+/**
+ * 截图窗口句柄区域为bmp缓冲区  [同步]
+ * @param handle 句柄
+ */
+export declare function captureBmp2Sync(handle: number | HWND): Buffer | null;
+/**
+ * 截图主屏幕到文件中 [同步]
+ * @param path 文件路径
+ */
+export declare function captureBmp2Sync(path: string): boolean;
+/**
+ * 截图窗口句柄区域为文件 [同步]
+ * ? 不会提前将窗口前置 因此会包含其他信息
+ * @param handle 句柄
+ * @param path 文件路径
+ */
+export declare function captureBmp2Sync(handle: number | HWND, path: string): boolean;
+/**
+ * 截图主屏幕为bmp缓冲区 [同步]
+ * @param x (x) 从屏幕左边到所在位置得像素数
+ * @param y (y) 从屏幕顶部边到所在位置得像素数
+ * @param nScopeWidth 要求宽度
+ * @param nScopeHeight 要求高度
+ */
+export declare function captureBmp2Sync(x: number, y: number, nScopeWidth: number, nScopeHeight: number): Buffer | null;
+/**
+ * 截图主屏幕为bmp文件 [同步]
+ * @param x (x) 从屏幕左边到所在位置得像素数
+ * @param y (y) 从屏幕顶部边到所在位置得像素数
+ * @param nScopeWidth 要求宽度
+ * @param nScopeHeight 要求高度
+ */
+export declare function captureBmp2Sync(path: string, x: number, y: number, nScopeWidth: number, nScopeHeight: number): boolean;
 export {};

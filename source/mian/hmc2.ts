@@ -13,23 +13,15 @@ export module HMCC {
         StartHTML: number;
         Version: number;
     }
+    export enum FS_MK_LINK_TARGET_TYPE{
+        CREATE_DIR_SYMLINK = 166,
+        CREATE_SYMLINK = 168,
+        CREATE_HARD_LINK = 170,
+        CREATE_SYMBOLIC_LINK = 172
+    }
 }
 
-interface CaptureBmp {
-    (handle:number): Promise<Buffer|null>;
-    (handle:number,path:string): Promise<boolean>;
-    (x:number,y:number, nScopeWidth: number, nScopeHeight: number): Promise<Buffer|null>;
-    (path:string,x:number,y:number, nScopeWidth: number, nScopeHeight: number): Promise<boolean>;
-    _PromiseTask?: Promise<any>;
-}
 
-interface CaptureBmpSync {
-    (handle:number): Buffer|null;
-    (handle:number,path:string): boolean ;
-    (x:number,y:number, nScopeWidth: number, nScopeHeight: number): Buffer|null;
-    (path:string,x:number,y:number, nScopeWidth: number, nScopeHeight: number): boolean;
-    _PromiseTask?: Promise<any>;
-}
 
 export type HMCC = {
 
@@ -41,7 +33,7 @@ export type HMCC = {
      * - 2 关闭 / 系统级(半强制)
      * - 3 关闭线程 (强制)
      */
-    closeWindow2?: (handle: number, grade: 1 | 2 | 3)=>Promise<boolean>;
+    closeWindow2?: (handle: number, grade: 1 | 2 | 3) => Promise<boolean>;
 
     /**
      * 关闭窗口 同步
@@ -57,9 +49,9 @@ export type HMCC = {
     // 截图到文件中
     captureBmpToFile?: (path: string, x: number, y: number, nScopeWidth: number, nScopeHeight: number) => undefined;
     // 截图
-    captureBmp2?:CaptureBmp;
+    captureBmp2?: HMCC.CaptureBmp;
     // 截图
-    captureBmp2Sync?:CaptureBmpSync;
+    captureBmp2Sync?: HMCC.CaptureBmpSync;
     // 获取剪贴板文件路径列表 以\0切割
     getClipboardFilePaths?: () => string;
     // 设置剪贴板本文或者html
@@ -149,9 +141,26 @@ export type HMCC = {
      */
     setFolderIcon?: (folderPath: string, iconPath: string, iconIndex?: number) => boolean;
 
-    // DECLARE_NAPI_METHODRM("isLinkLink", isLinkLink),
+    /**
+     * 判断指定文件是否是 软链接/硬链接
+     * @param path 
+     * @returns 
+     */
+    isLinkLink?:(path: string) => boolean;
+    
+    /**
+     * 创建 软链接/硬链接/目录连接点/文件夹链接
+     * @param targetType 创建类型
+     * - 文件夹链接 CREATE_DIR_SYMLINK = 166
+     * - 软链接 CREATE_SYMLINK = 168
+     * - 硬链接 CREATE_HARD_LINK = 170
+     * - 目录连接点 CREATE_SYMBOLIC_LINK = 172
+     * @param targetPath 目标位置
+     * @param sourcePath 源文件路径
+     * @returns 
+     */
+    createFsLink?:(targetType: HMCC.FS_MK_LINK_TARGET_TYPE,targetPath:string,sourcePath:string) => boolean;
     // DECLARE_NAPI_METHODRM("setShortcutLink", setShortcutLink),
-    // DECLARE_NAPI_METHODRM("createFsLink", createFsLink),
     // DECLARE_NAPI_METHODRM("getSystemMetrics", getSystemMetrics),
     // DECLARE_NAPI_METHODRM("getShortcutLink", getShortcutLink),
     // DECLARE_NAPI_METHODRM("setConversionStatus", setConversionStatus),
@@ -166,7 +175,26 @@ export type HMCC = {
 
 };
 
+export module HMCC {
+    export interface CaptureBmp {
+        (handle: number): Promise<Buffer | null>;
+        (handle: number, path: string): Promise<boolean>;
+        (path: string): Promise<boolean>;
+        (): Promise<Buffer | null>;
+        (x: number, y: number, nScopeWidth: number, nScopeHeight: number): Promise<Buffer | null>;
+        (path: string, x: number, y: number, nScopeWidth: number, nScopeHeight: number): Promise<boolean>;
+    }
 
+    export interface CaptureBmpSync {
+        (handle: number): Buffer | null;
+        (handle: number, path: string): boolean;
+        (path: string): boolean;
+        (): Buffer | null;
+        (x: number, y: number, nScopeWidth: number, nScopeHeight: number): Buffer | null;
+        (path: string, x: number, y: number, nScopeWidth: number, nScopeHeight: number): boolean;
+    }
+
+};
 
 /**
  * @zh-cn 静态调用 hmc.dll (注意如果您不知道这个是什么作用 请勿随意调用 参数错误有可能会导致进程崩溃)
@@ -176,8 +204,8 @@ const get_native: () => HMCC = (binPath?: string) => {
     function _require_bin(): HMCC | null {
         try {
             if (binPath) return require(binPath);
-            if (process.arch.match(/^x32|ia32$/)) return require("./bin/HMC@2_x86.node");
-            if (process.arch.match(/^x64$/)) return require("./bin/HMC@2_x64.node");
+            if (process.arch.match(/^x32|ia32$/)) return require("./bin/HMC@Beta_x86.node");
+            if (process.arch.match(/^x64$/)) return require("./bin/HMC@Beta_x64.node");
         } catch (O_O) {
 
         }
@@ -191,7 +219,7 @@ const get_native: () => HMCC = (binPath?: string) => {
 
 export const native2: HMCC = get_native();
 
-class FunctionTaskQueue {
+class AsyncFunctionTaskQueue {
     queues: Map<(...args: any[]) => Promise<any>, any>;
     constructor() {
         this.queues = new Map();
@@ -235,7 +263,7 @@ class FunctionTaskQueue {
 }
 
 
-export const asyncTaskQueue = new FunctionTaskQueue();
+export const asyncTaskQueue = new AsyncFunctionTaskQueue();
 
 
 /**
@@ -452,6 +480,147 @@ export function getTrayList(): Array<HMC.TRAY_ICON> {
 export function setFolderIcon(folderPath: string, iconPath: string, iconIndex?: number) {
 
     if (!native2.setFolderIcon) return false;
-    return native2.setFolderIcon(ref.string(folderPath), ref.string(iconPath), ref.int(iconIndex||0));
+    return native2.setFolderIcon(ref.string(folderPath), ref.string(iconPath), ref.int(iconIndex || 0));
 
 }
+
+/**
+ * 截图主屏幕为bmp缓冲区 [异步]
+ */
+export function captureBmp2(): Promise<Buffer | null>;
+/**
+ * 截图窗口句柄区域为bmp缓冲区  [异步]
+ * @param handle 句柄
+ */
+export function captureBmp2(handle: number|HWND): Promise<Buffer | null>;
+/**
+ * 截图主屏幕到文件中 [异步]
+ * @param path 文件路径
+ */
+export function captureBmp2(path: string): Promise<boolean>;
+/**
+ * 截图窗口句柄区域为文件 [异步]
+ * ? 不会提前将窗口前置 因此会包含其他信息
+ * @param handle 句柄
+ * @param path 文件路径
+ */
+export function captureBmp2(handle: number|HWND, path: string): Promise<boolean>;
+/**
+ * 截图主屏幕为bmp缓冲区 [异步]
+ * @param x (x) 从屏幕左边到所在位置得像素数
+ * @param y (y) 从屏幕顶部边到所在位置得像素数
+ * @param nScopeWidth 要求宽度
+ * @param nScopeHeight 要求高度
+ */
+export function captureBmp2(x: number, y: number, nScopeWidth: number, nScopeHeight: number): Promise<Buffer | null>;
+/**
+ * 截图主屏幕为bmp文件 [异步]
+ * @param x (x) 从屏幕左边到所在位置得像素数
+ * @param y (y) 从屏幕顶部边到所在位置得像素数
+ * @param nScopeWidth 要求宽度
+ * @param nScopeHeight 要求高度
+ */
+export function captureBmp2(path: string, x: number, y: number, nScopeWidth: number, nScopeHeight: number): Promise<boolean>;
+
+export async function captureBmp2(...args: unknown[]): Promise<unknown> {
+
+    if (!native2.captureBmp2) return Promise.resolve(null);
+    if (!args.length) {
+        return native2.captureBmp2();
+    }
+
+    if(args.length==1){
+        //  captureBmp2(handle: number|HWND): Promise<Buffer | null>;
+        if(typeof args[0]=="number"||typeof args[0]=="object"){
+            return native2.captureBmp2(ref.int(args[0]));
+        }
+        return native2.captureBmp2(ref.string(args[0]));
+    }
+
+
+    if(args.length==2){
+        return native2.captureBmp2(ref.int(args[0]),ref.string(args[1]));
+    }
+
+    if(args.length==4){
+        return native2.captureBmp2(ref.int(args[0]),ref.int(args[1]),ref.int(args[2]),ref.int(args[3]),);
+    }
+
+
+    if(args.length==5){
+        return native2.captureBmp2(ref.string(args[0]),ref.int(args[1]),ref.int(args[2]),ref.int(args[3]),ref.int(args[4]));
+    }
+
+    return Promise.resolve(null);
+};
+
+
+/**
+ * 截图主屏幕为bmp缓冲区 [同步]
+ */
+export function captureBmp2Sync(): Buffer | null;
+/**
+ * 截图窗口句柄区域为bmp缓冲区  [同步]
+ * @param handle 句柄
+ */
+export function captureBmp2Sync(handle: number|HWND): Buffer | null;
+/**
+ * 截图主屏幕到文件中 [同步]
+ * @param path 文件路径
+ */
+export function captureBmp2Sync(path: string): boolean;
+/**
+ * 截图窗口句柄区域为文件 [同步]
+ * ? 不会提前将窗口前置 因此会包含其他信息
+ * @param handle 句柄
+ * @param path 文件路径
+ */
+export function captureBmp2Sync(handle: number|HWND, path: string): boolean;
+/**
+ * 截图主屏幕为bmp缓冲区 [同步]
+ * @param x (x) 从屏幕左边到所在位置得像素数
+ * @param y (y) 从屏幕顶部边到所在位置得像素数
+ * @param nScopeWidth 要求宽度
+ * @param nScopeHeight 要求高度
+ */
+export function captureBmp2Sync(x: number, y: number, nScopeWidth: number, nScopeHeight: number): Buffer | null;
+/**
+ * 截图主屏幕为bmp文件 [同步]
+ * @param x (x) 从屏幕左边到所在位置得像素数
+ * @param y (y) 从屏幕顶部边到所在位置得像素数
+ * @param nScopeWidth 要求宽度
+ * @param nScopeHeight 要求高度
+ */
+export function captureBmp2Sync(path: string, x: number, y: number, nScopeWidth: number, nScopeHeight: number): boolean;
+
+export function captureBmp2Sync(...args: unknown[]):unknown {
+
+    if (!native2.captureBmp2Sync) return null;
+    if (!args.length) {
+        return native2.captureBmp2Sync();
+    }
+
+    if(args.length==1){
+        //  captureBmp2(handle: number|HWND): Promise<Buffer | null>;
+        if(typeof args[0]=="number"||typeof args[0]=="object"){
+            return native2.captureBmp2Sync(ref.int(args[0]));
+        }
+        return native2.captureBmp2Sync(ref.string(args[0]));
+    }
+
+
+    if(args.length==2){
+        return native2.captureBmp2Sync(ref.int(args[0]),ref.string(args[1]));
+    }
+
+    if(args.length==4){
+        return native2.captureBmp2Sync(ref.int(args[0]),ref.int(args[1]),ref.int(args[2]),ref.int(args[3]),);
+    }
+
+
+    if(args.length==5){
+        return native2.captureBmp2Sync(ref.string(args[0]),ref.int(args[1]),ref.int(args[2]),ref.int(args[3]),ref.int(args[4]));
+    }
+
+    return null;
+};

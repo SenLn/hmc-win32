@@ -16,8 +16,8 @@
     "chcpList.d.ts",
     "bin/HMC_x64.node",
     "bin/HMC_x86.node",
-    "bin/HMC@2_x64.node",
-    "bin/HMC@2_x86.node",
+    "bin/HMC@Beta_x64.node",
+    "bin/HMC@Beta_x86.node",
     "index.js"
   ],
   "homepage": "https://kihlh.gitbook.io/hmc/",

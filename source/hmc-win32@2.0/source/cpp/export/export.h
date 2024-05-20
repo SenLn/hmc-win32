@@ -35,3 +35,4 @@ extern napi_value captureBmpToFile(napi_env env, napi_callback_info info);
 // window.cpp
 
 void exports_window_async_fun(napi_env env, napi_value exports);
+void exports_screen_async_fun(napi_env env, napi_value exports);

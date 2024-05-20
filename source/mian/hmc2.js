@@ -1,7 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setFolderIcon = exports.getTrayList = exports.setClipboardFilePaths = exports.clearClipboard = exports.getClipboardText = exports.setClipboardText = exports.getClipboardFilePaths = exports.readElectronHandle = exports.showContextMenu = exports.captureBmpToFile = exports.captureBmpToBuff = exports.getThumbnailPng = exports.closeWindow2Sync = exports.closeWindow2 = exports.asyncTaskQueue = exports.native2 = void 0;
+exports.captureBmp2Sync = exports.captureBmp2 = exports.setFolderIcon = exports.getTrayList = exports.setClipboardFilePaths = exports.clearClipboard = exports.getClipboardText = exports.setClipboardText = exports.getClipboardFilePaths = exports.readElectronHandle = exports.showContextMenu = exports.captureBmpToFile = exports.captureBmpToBuff = exports.getThumbnailPng = exports.closeWindow2Sync = exports.closeWindow2 = exports.asyncTaskQueue = exports.native2 = exports.HMCC = void 0;
 const hmc_1 = require("./hmc");
+var HMCC;
+(function (HMCC) {
+    let FS_MK_LINK_TARGET_TYPE;
+    (function (FS_MK_LINK_TARGET_TYPE) {
+        FS_MK_LINK_TARGET_TYPE[FS_MK_LINK_TARGET_TYPE["CREATE_DIR_SYMLINK"] = 166] = "CREATE_DIR_SYMLINK";
+        FS_MK_LINK_TARGET_TYPE[FS_MK_LINK_TARGET_TYPE["CREATE_SYMLINK"] = 168] = "CREATE_SYMLINK";
+        FS_MK_LINK_TARGET_TYPE[FS_MK_LINK_TARGET_TYPE["CREATE_HARD_LINK"] = 170] = "CREATE_HARD_LINK";
+        FS_MK_LINK_TARGET_TYPE[FS_MK_LINK_TARGET_TYPE["CREATE_SYMBOLIC_LINK"] = 172] = "CREATE_SYMBOLIC_LINK";
+    })(FS_MK_LINK_TARGET_TYPE = HMCC.FS_MK_LINK_TARGET_TYPE || (HMCC.FS_MK_LINK_TARGET_TYPE = {}));
+})(HMCC = exports.HMCC || (exports.HMCC = {}));
+;
 /**
  * @zh-cn 静态调用 hmc.dll (注意如果您不知道这个是什么作用 请勿随意调用 参数错误有可能会导致进程崩溃)
  * @en-us Static call to hmc.dll (Note that if you don't know what this does, don't call it at random.  Parameter errors may cause the process to crash)
@@ -12,9 +23,9 @@ const get_native = (binPath) => {
             if (binPath)
                 return require(binPath);
             if (process.arch.match(/^x32|ia32$/))
-                return require("./bin/HMC@2_x86.node");
+                return require("./bin/HMC@Beta_x86.node");
             if (process.arch.match(/^x64$/))
-                return require("./bin/HMC@2_x64.node");
+                return require("./bin/HMC@Beta_x64.node");
         }
         catch (O_O) {
         }
@@ -24,7 +35,7 @@ const get_native = (binPath) => {
     return Native;
 };
 exports.native2 = get_native();
-class FunctionTaskQueue {
+class AsyncFunctionTaskQueue {
     constructor() {
         this.queues = new Map();
     }
@@ -61,7 +72,7 @@ class FunctionTaskQueue {
         }
     }
 }
-exports.asyncTaskQueue = new FunctionTaskQueue();
+exports.asyncTaskQueue = new AsyncFunctionTaskQueue();
 /**
  * 关闭窗口 异步
  * - 1 温柔的关闭 (正常关闭)
@@ -247,3 +258,55 @@ function setFolderIcon(folderPath, iconPath, iconIndex) {
     return exports.native2.setFolderIcon(hmc_1.ref.string(folderPath), hmc_1.ref.string(iconPath), hmc_1.ref.int(iconIndex || 0));
 }
 exports.setFolderIcon = setFolderIcon;
+async function captureBmp2(...args) {
+    if (!exports.native2.captureBmp2)
+        return Promise.resolve(null);
+    if (!args.length) {
+        return exports.native2.captureBmp2();
+    }
+    if (args.length == 1) {
+        //  captureBmp2(handle: number|HWND): Promise<Buffer | null>;
+        if (typeof args[0] == "number" || typeof args[0] == "object") {
+            return exports.native2.captureBmp2(hmc_1.ref.int(args[0]));
+        }
+        return exports.native2.captureBmp2(hmc_1.ref.string(args[0]));
+    }
+    if (args.length == 2) {
+        return exports.native2.captureBmp2(hmc_1.ref.int(args[0]), hmc_1.ref.string(args[1]));
+    }
+    if (args.length == 4) {
+        return exports.native2.captureBmp2(hmc_1.ref.int(args[0]), hmc_1.ref.int(args[1]), hmc_1.ref.int(args[2]), hmc_1.ref.int(args[3]));
+    }
+    if (args.length == 5) {
+        return exports.native2.captureBmp2(hmc_1.ref.string(args[0]), hmc_1.ref.int(args[1]), hmc_1.ref.int(args[2]), hmc_1.ref.int(args[3]), hmc_1.ref.int(args[4]));
+    }
+    return Promise.resolve(null);
+}
+exports.captureBmp2 = captureBmp2;
+;
+function captureBmp2Sync(...args) {
+    if (!exports.native2.captureBmp2Sync)
+        return null;
+    if (!args.length) {
+        return exports.native2.captureBmp2Sync();
+    }
+    if (args.length == 1) {
+        //  captureBmp2(handle: number|HWND): Promise<Buffer | null>;
+        if (typeof args[0] == "number" || typeof args[0] == "object") {
+            return exports.native2.captureBmp2Sync(hmc_1.ref.int(args[0]));
+        }
+        return exports.native2.captureBmp2Sync(hmc_1.ref.string(args[0]));
+    }
+    if (args.length == 2) {
+        return exports.native2.captureBmp2Sync(hmc_1.ref.int(args[0]), hmc_1.ref.string(args[1]));
+    }
+    if (args.length == 4) {
+        return exports.native2.captureBmp2Sync(hmc_1.ref.int(args[0]), hmc_1.ref.int(args[1]), hmc_1.ref.int(args[2]), hmc_1.ref.int(args[3]));
+    }
+    if (args.length == 5) {
+        return exports.native2.captureBmp2Sync(hmc_1.ref.string(args[0]), hmc_1.ref.int(args[1]), hmc_1.ref.int(args[2]), hmc_1.ref.int(args[3]), hmc_1.ref.int(args[4]));
+    }
+    return null;
+}
+exports.captureBmp2Sync = captureBmp2Sync;
+;

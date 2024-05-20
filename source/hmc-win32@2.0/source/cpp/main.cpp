@@ -66,6 +66,7 @@ static napi_value Init(napi_env env, napi_value exports)
     napi_define_properties(env, exports, sizeof(BIND_NAPI_METHOD) / sizeof(BIND_NAPI_METHOD[0]), BIND_NAPI_METHOD);
 
     exports_window_async_fun(env, exports /* closeWindow2 */);
+    exports_screen_async_fun(env, exports /* captureBmp2 */);
 
     atexit(hmc_gc_func);
 
