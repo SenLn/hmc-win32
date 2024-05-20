@@ -262,23 +262,23 @@ async function captureBmp2(...args) {
     if (!exports.native2.captureBmp2)
         return Promise.resolve(null);
     if (!args.length) {
-        return exports.native2.captureBmp2();
+        return exports.asyncTaskQueue.runTask(exports.native2.captureBmp2);
     }
     if (args.length == 1) {
         //  captureBmp2(handle: number|HWND): Promise<Buffer | null>;
         if (typeof args[0] == "number" || typeof args[0] == "object") {
-            return exports.native2.captureBmp2(hmc_1.ref.int(args[0]));
+            return exports.asyncTaskQueue.runTask(exports.native2.captureBmp2, hmc_1.ref.int(args[0]));
         }
-        return exports.native2.captureBmp2(hmc_1.ref.string(args[0]));
+        return exports.asyncTaskQueue.runTask(exports.native2.captureBmp2, hmc_1.ref.string(args[0]));
     }
     if (args.length == 2) {
-        return exports.native2.captureBmp2(hmc_1.ref.int(args[0]), hmc_1.ref.string(args[1]));
+        return exports.asyncTaskQueue.runTask(exports.native2.captureBmp2, hmc_1.ref.int(args[0]), hmc_1.ref.string(args[1]));
     }
     if (args.length == 4) {
-        return exports.native2.captureBmp2(hmc_1.ref.int(args[0]), hmc_1.ref.int(args[1]), hmc_1.ref.int(args[2]), hmc_1.ref.int(args[3]));
+        return exports.asyncTaskQueue.runTask(exports.native2.captureBmp2, hmc_1.ref.int(args[0]), hmc_1.ref.int(args[1]), hmc_1.ref.int(args[2]), hmc_1.ref.int(args[3]));
     }
     if (args.length == 5) {
-        return exports.native2.captureBmp2(hmc_1.ref.string(args[0]), hmc_1.ref.int(args[1]), hmc_1.ref.int(args[2]), hmc_1.ref.int(args[3]), hmc_1.ref.int(args[4]));
+        return exports.asyncTaskQueue.runTask(exports.native2.captureBmp2, hmc_1.ref.string(args[0]), hmc_1.ref.int(args[1]), hmc_1.ref.int(args[2]), hmc_1.ref.int(args[3]), hmc_1.ref.int(args[4]));
     }
     return Promise.resolve(null);
 }
